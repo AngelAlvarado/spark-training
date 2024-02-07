@@ -1,28 +1,74 @@
 version: "3.9"
 services:
   spark-master:
-    image: bitnami/spark:latest
+    image: docker.io/bitnami/spark:3.1.2
     container_name: spark-master
+    expose:
+      - "7077"
     ports:
       - "8080:8080" # Spark master UI
+      - "4040:4040" # Spark master UI
       - "7077:7077" # Spark master port
     environment:
       - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    volumes:
+      - ${PWD}:/data
+    networks:
+      - shared-network
 
   spark-worker-1:
-    image: bitnami/spark:latest
+    image: docker.io/bitnami/spark:3.1.2
     container_name: spark-worker-1
     depends_on:
       - spark-master
+    ports:
+      - "8081:8081" # Spark master UI
     environment:
       - SPARK_MODE=worker
+      - SPARK_WORKER_MEMORY=3G
+      - SPARK_WORKER_CORES=3
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
       - SPARK_MASTER_URL=spark://spark-master:7077
+    networks:
+      - shared-network
 
   spark-worker-2:
-    image: bitnami/spark:latest
+    image: docker.io/bitnami/spark:3.1.2
     container_name: spark-worker-2
     depends_on:
       - spark-master
     environment:
       - SPARK_MODE=worker
+      - SPARK_WORKER_MEMORY=3G
+      - SPARK_WORKER_CORES=3
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
       - SPARK_MASTER_URL=spark://spark-master:7077
+    networks:
+      - shared-network
+  rstudio:
+    image: rocker/rstudio:4.1.1
+    container_name: rstudio
+    volumes:
+      - ./:/home/rstudio
+    expose:
+      - "8787"
+    ports:
+      - "8787:8787"
+    networks:
+      - shared-network
+networks:
+  shared-network:
+    driver: bridge

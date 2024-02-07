@@ -25,8 +25,8 @@ val flightData2015 = spark
   .read
   .option("inferSchema", "true")
   .option("header", "true")
-  .csv("/data/flight-data/csv/2015-summary.csv")
-
+  .csv("/data/data/flight-data/csv/2015-summary.csv")
+val flightData2015 = spark.read.option("inferSchema", "true").option("header","true").csv("/data/data/flight-data/csv/2015-summary.csv")
 
 // COMMAND ----------
 
@@ -102,13 +102,7 @@ maxSql.show()
 // in Scala
 import org.apache.spark.sql.functions.desc
 
-flightData2015
-  .groupBy("DEST_COUNTRY_NAME")
-  .sum("count")
-  .withColumnRenamed("sum(count)", "destination_total")
-  .sort(desc("destination_total"))
-  .limit(5)
-  .show()
+flightData2015.groupBy("DEST_COUNTRY_NAME").sum("count").withColumnRenamed("sum(count)", "destination_total").sort(desc("destination_total")).limit(5).show()
 
 
 // COMMAND ----------
